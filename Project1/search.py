@@ -106,6 +106,10 @@ class Node:
         """Return the sequence of actions to go from the root to this node."""
         return [node.action for node in self.path()[1:]]
 
+    def states(self):
+        """Return the sequence of actions to go from the root to this node."""
+        return [node.state for node in self.path()[1:]]
+
     def path(self):
         """Return a list of nodes forming the path from the root to this node."""
         node, path_back = self, []
@@ -228,6 +232,7 @@ def depth_first_graph_search(problem):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            print(explored, len(explored))
             return node
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
@@ -252,6 +257,7 @@ def breadth_first_graph_search(problem):
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
                 if problem.goal_test(child.state):
+                    print(explored, len(explored))
                     return child
                 frontier.append(child)
     return None
@@ -273,6 +279,7 @@ def best_first_graph_search(problem, f, display=False):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            print(explored, len(explored))
             if display:
                 print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
             return node
@@ -652,7 +659,7 @@ def hill_climbing(problem):
         if problem.value(neighbor.state) <= problem.value(current.state):
             break
         current = neighbor
-    return current.state
+    return current
 
 
 def exp_schedule(k=20, lam=0.005, limit=100):
@@ -667,10 +674,10 @@ def simulated_annealing(problem, schedule=exp_schedule()):
     for t in range(sys.maxsize):
         T = schedule(t)
         if T == 0:
-            return current.state
+            return current
         neighbors = current.expand(problem)
         if not neighbors:
-            return current.state
+            return current
         next_choice = random.choice(neighbors)
         delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(np.exp(delta_e / T)):
@@ -689,7 +696,7 @@ def simulated_annealing_full(problem, schedule=exp_schedule()):
             return states
         neighbors = current.expand(problem)
         if not neighbors:
-            return current.state
+            return current
         next_choice = random.choice(neighbors)
         delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(np.exp(delta_e / T)):

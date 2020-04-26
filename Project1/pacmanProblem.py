@@ -1,4 +1,6 @@
-from search import Problem
+import numpy as np
+
+from search import Problem, euclidean_distance, manhattan_distance
 
 
 class PacmanProblem(Problem):
@@ -8,11 +10,13 @@ class PacmanProblem(Problem):
         Problem.__init__(self, initial=initial, goal=goal, **kwds)
         self.obstacles = obstacles
 
-    directions = [(0, -1), (-1, 0), (1, 0), (0, +1)]
+    directions = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
-    def action_cost(self, s, action, s1): return straight_line_distance(s, s1)
+    def action_cost(self, s, action, s1): return euclidean_distance(s, s1)
 
-    def h(self, node): return straight_line_distance(node.state, self.goal)
+    def value(self, state): return -1 * np.linalg.norm(manhattan_distance(state, self.goal))
+
+    def h(self, node): return euclidean_distance(node.state, self.goal)
 
     def result(self, state, action):
         "Both states and actions are represented by (x, y) pairs."
@@ -22,7 +26,3 @@ class PacmanProblem(Problem):
         """You can move one cell in any of `directions` to a non-obstacle cell."""
         x, y = state
         return {(x + dx, y + dy) for (dx, dy) in self.directions} - self.obstacles
-
-def straight_line_distance(A, B):
-    "Straight-line distance between two points."
-    return sum(abs(a - b)**2 for (a, b) in zip(A, B)) ** 0.5

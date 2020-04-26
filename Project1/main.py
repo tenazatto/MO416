@@ -1,11 +1,10 @@
 import argparse
 import os
-from collections import Counter
 
 from pacmanProblem import PacmanProblem
 from report import report
-from search import astar_search, random, hill_climbing, depth_first_tree_search, breadth_first_tree_search, \
-    greedy_best_first_graph_search, greedy_best_first_search, breadth_first_graph_search, depth_first_graph_search
+from search import astar_search, hill_climbing, greedy_best_first_search, breadth_first_graph_search, \
+    depth_first_graph_search
 
 
 def default(str):
@@ -43,17 +42,29 @@ def main():
     astarProblem = astar_search(problem)
     bfsProblem = breadth_first_graph_search(problem)
     dfsProblem = depth_first_graph_search(problem)
+    hcProblem = hill_climbing(problem)
     print('Greedy Best First Search:')
     print('Caminho:', gfsProblem.path())
     print('Gol:', gfsProblem)
     print('A* Search:')
     print('Caminho:', astarProblem.path())
+    print('Solução:', astarProblem.solution())
+    print('Estados:', path_states(astarProblem))
     print('Gol:', astarProblem)
     print('Breadth-First Search:')
     print('Caminho:', bfsProblem.path())
+    print('Solução:', bfsProblem.solution())
+    print('Estados:', path_states(bfsProblem))
     print('Gol:', dfsProblem)
     print('Depth-First Search:')
     print('Caminho:', dfsProblem.path())
+    print('Solução:', dfsProblem.solution())
+    print('Estados:', path_states(dfsProblem))
+    print('Gol:', dfsProblem)
+    print('Hill Climbing:')
+    print('Caminho:', hcProblem.path())
+    print('Solução:', hcProblem.solution())
+    print('Estados:', path_states(hcProblem))
     print('Gol:', dfsProblem)
     print()
     print('Gerando saídas...')
@@ -61,10 +72,23 @@ def main():
     generateOutput(astarProblem.path(), args.layout, 'astar')
     generateOutput(dfsProblem.path(), args.layout, 'bfs')
     generateOutput(dfsProblem.path(), args.layout, 'dfs')
+    generateOutput(hcProblem.path(), args.layout, 'hc')
 
     print()
     print('Desempenho:')
-    report([greedy_best_first_search, astar_search, breadth_first_graph_search, depth_first_graph_search], [problem])
+    report([greedy_best_first_search, astar_search, breadth_first_graph_search, depth_first_graph_search, hill_climbing], [problem])
+
+def path_actions(node):
+    "The sequence of actions to get to this node."
+    if node.parent is None:
+        return []
+    return path_actions(node.parent) + [node.action]
+
+def path_states(node):
+    "The sequence of states to get to this node."
+    if node is None:
+        return []
+    return path_states(node.parent) + [node.state]
 
 def mapPositions(layoutFile):
     with open('layouts/'+ layoutFile +'.lay', 'r') as layout:
