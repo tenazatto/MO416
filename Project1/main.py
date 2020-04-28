@@ -68,11 +68,11 @@ def main():
     print('Gol:', dfsProblem)
     print()
     print('Gerando saídas...')
-    generateOutput(gfsProblem.path(), args.layout, 'gfs')
-    generateOutput(astarProblem.path(), args.layout, 'astar')
-    generateOutput(dfsProblem.path(), args.layout, 'bfs')
-    generateOutput(dfsProblem.path(), args.layout, 'dfs')
-    generateOutput(hcProblem.path(), args.layout, 'hc')
+    generateOutput(set(gfsProblem.solution()) - {pacman, goal}, gfsProblem.explored - {pacman, goal}, args.layout, 'gfs')
+    generateOutput(set(astarProblem.solution()) - {pacman, goal}, astarProblem.explored - {pacman, goal}, args.layout, 'astar')
+    generateOutput(set(bfsProblem.solution()) - {pacman, goal}, bfsProblem.explored - {pacman, goal}, args.layout, 'bfs')
+    generateOutput(set(dfsProblem.solution()) - {pacman, goal}, dfsProblem.explored - {pacman, goal}, args.layout, 'dfs')
+    generateOutput(set(hcProblem.solution()) - {pacman, goal}, hcProblem.explored - {pacman, goal}, args.layout, 'hc')
 
     print()
     print('Desempenho:')
@@ -114,31 +114,31 @@ def mapPositions(layoutFile):
             x += 1
         return bounds, ghosts, pacman, goal
 
-def generateOutput(nodes, layoutFile, searchFile):
+def generateOutput(nodes, explored, layoutFile, searchFile):
     if not os.path.exists('solutions'):
         os.makedirs('solutions')
 
     with open('layouts/'+ layoutFile +'.lay', 'r') as layout:
         lines = layout.readlines()
-        numnodes = 1
-        for node in nodes:
-            x = 1
-            if (numnodes == 1) or (numnodes == len(nodes)):
-                numnodes += 1
-                continue
-
-            for line in lines:
-                if (x == node.state[0]):
-                    aux = list(line)
-                    aux[node.state[1] - 1] = '*'
-                    lines[node.state[0] - 1] = "".join(aux)
-                x += 1
-            numnodes += 1
-
+        lines = drawNodeOutput(lines, explored, '+')
+        lines = drawNodeOutput(lines, nodes, '*')
 
         with open('solutions/' + layoutFile + '_' + searchFile + '.lay', 'w') as solution:
             solution.write("".join(lines))
 
+def drawNodeOutput(lines, nodes, char):
+    numnodes = 1
+    for node in nodes:
+        x = 1
+        for line in lines:
+            if (x == node[0]):
+                aux = list(line)
+                aux[node[1] - 1] = char
+                lines[node[0] - 1] = "".join(aux)
+            x += 1
+        numnodes += 1
+
+    return lines
 
 if __name__ == '__main__':
     main()

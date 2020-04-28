@@ -8,13 +8,13 @@ class PacmanProblem(Problem):
 
     def __init__(self, initial=(0, 0), goal=(30, 30), obstacles=(), **kwds):
         Problem.__init__(self, initial=initial, goal=goal, **kwds)
-        self.obstacles = obstacles
+        self.obstacles = obstacles - {initial, goal}
 
     directions = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
     def action_cost(self, s, action, s1): return euclidean_distance(s, s1)
 
-    def value(self, state): return -1 * np.linalg.norm(manhattan_distance(state, self.goal))
+    def value(self, state): return -1 * np.linalg.norm(euclidean_distance(state, self.goal))
 
     def h(self, node): return euclidean_distance(node.state, self.goal)
 

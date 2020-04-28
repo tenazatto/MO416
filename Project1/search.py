@@ -82,6 +82,7 @@ class Node:
         self.action = action
         self.path_cost = path_cost
         self.depth = 0
+        self.explored = []
         if parent:
             self.depth = parent.depth + 1
 
@@ -232,6 +233,7 @@ def depth_first_graph_search(problem):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            node.explored = explored
             print(explored, len(explored))
             return node
         explored.add(node.state)
@@ -257,6 +259,7 @@ def breadth_first_graph_search(problem):
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
                 if problem.goal_test(child.state):
+                    child.explored = explored
                     print(explored, len(explored))
                     return child
                 frontier.append(child)
@@ -279,6 +282,7 @@ def best_first_graph_search(problem, f, display=False):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            node.explored = explored
             print(explored, len(explored))
             if display:
                 print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
@@ -417,7 +421,7 @@ greedy_best_first_graph_search = best_first_graph_search
 
 
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
-def greedy_best_first_search(problem, h=None, display=False):
+def greedy_best_first_search(problem, h=None, display=True):
     """A* search is best-first graph search with f(n) = g(n)+h(n).
     You need to specify the h function when you call astar_search, or
     else in your Problem subclass."""
@@ -651,14 +655,18 @@ def hill_climbing(problem):
     stopping when no neighbor is better.
     """
     current = Node(problem.initial)
+    explored = set()
     while True:
         neighbors = current.expand(problem)
         if not neighbors:
             break
         neighbor = argmax_random_tie(neighbors, key=lambda node: problem.value(node.state))
+        explored.add(neighbor.state)
         if problem.value(neighbor.state) <= problem.value(current.state):
             break
         current = neighbor
+    print(explored, len(explored))
+    current.explored = explored
     return current
 
 
